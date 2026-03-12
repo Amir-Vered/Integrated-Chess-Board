@@ -351,6 +351,22 @@ public class MoveGenerator {
         return false;
     }
 
+    public static boolean IsInCheck(Board b, boolean whiteKing) {
+        int ksq = kingSquare(b, whiteKing);
+        if (ksq < 0) return false;
+        return isSquareAttacked(b, ksq, !whiteKing);
+    }
+
+    public static boolean IsCheckmate(Board b) {
+        if (!IsInCheck(b, b.whiteTurn)) return false;
+        return GenerateAllLegal(b).length == 0;
+    }
+
+    public static boolean IsStalemate(Board b) {
+        if (IsInCheck(b, b.whiteTurn)) return false;
+        return GenerateAllLegal(b).length == 0;
+    }
+
     private static boolean rayAttackedBy(Board b, int fromSq, int df, int dr, long occ, long byOcc, boolean rookLike) {
         int f = fromSq & 7;
         int r = fromSq >>> 3;

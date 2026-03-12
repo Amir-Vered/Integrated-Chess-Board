@@ -383,6 +383,55 @@ public class Board {
         System.out.println("     a   b   c   d   e   f   g   h\n");
     }
 
+    public static void PrintLegal(Board b, int fromSq) {
+        int[] moves = MoveGenerator.GenerateLegal(b, fromSq);
+
+        long targetsMask = 0L;
+        for (int pm : moves) {
+            int to = (pm >>> 6) & 63;
+            targetsMask |= 1L << to;
+        }
+
+        long occ = b.white | b.black;
+
+        System.out.println("\nSelected: " + sqToName(fromSq) + "   Legal moves: " + moves.length);
+        System.out.println("Legend: [ ] selected square, '.' quiet move, 'x' capture\n");
+
+        System.out.println("   +---+---+---+---+---+---+---+---+");
+        for (int rank = 7; rank >= 0; rank--) {
+            System.out.print(" " + (rank + 1) + " |");
+            for (int file = 0; file < 8; file++) {
+                int sq = rank * 8 + file;
+                long mask = 1L << sq;
+
+                if (sq == fromSq) {
+                    char pc = PieceCharAt(b, mask);
+                    if (pc == ' ') pc = '*';
+                    System.out.print("[" + pc + "]|");
+                    continue;
+                }
+
+                if ((targetsMask & mask) != 0L) {
+                    // destination square
+                    if ((occ & mask) != 0L) System.out.print(" x |");  // capture
+                    else                    System.out.print(" . |");  // quiet
+                    continue;
+                }
+
+                char piece = PieceCharAt(b, mask);
+                System.out.print(" " + piece + " |");
+            }
+            System.out.println("\n   +---+---+---+---+---+---+---+---+");
+        }
+        System.out.println("     a   b   c   d   e   f   g   h\n");
+    }
+
+    private static String sqToName(int sq) {
+        int file = sq & 7;
+        int rank = sq >>> 3;
+        return "" + (char)('a' + file) + (char)('1' + rank);
+    }
+
     public static char PieceCharAt(Board b, long mask) {
         if (((b.white | b.black) & mask) == 0) return ' ';
 
